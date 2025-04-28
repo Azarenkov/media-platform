@@ -12,9 +12,9 @@ impl From<sqlx::Error> for UserRepositoryError {
                 if e.is_unique_violation() {
                     return Self::AlreadyExist(e.to_string());
                 }
-                Self::Database("DB error".to_owned())
+                Self::Database(e.to_string())
             }
-            _ => Self::Database("DB error".to_owned()),
+            e => Self::Database(e.to_string()),
         }
     }
 }
