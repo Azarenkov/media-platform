@@ -31,6 +31,7 @@ impl AppDependencies {
 
 pub async fn server(app_state: web::Data<AppState>, port: &str) -> Result<(), Box<dyn Error>> {
     let address = format!("0.0.0.0:{}", port);
+    println!("App address: {}", &address);
 
     HttpServer::new(move || {
         App::new()
