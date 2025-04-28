@@ -22,10 +22,7 @@ impl AppDependencies {
 
         let app_state = web::Data::new(AppState::new(user_service));
 
-        Self {
-            // user_service,
-            app_state,
-        }
+        Self { app_state }
     }
 }
 
