@@ -5,8 +5,8 @@ pub struct Config {
     pub port: String,
 }
 
-impl Config {
-    pub fn new() -> Self {
+impl Default for Config {
+    fn default() -> Self {
         let db_url = env::var("DB_URL").expect("DB_URL must be set");
         let port = env::var("PORT").expect("PORT must be set");
 

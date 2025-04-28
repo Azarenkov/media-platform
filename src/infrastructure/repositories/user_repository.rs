@@ -5,33 +5,19 @@ use crate::domain::{
     repositories::{errors::UserRepositoryError, user_repository_abstract::UserRepositoryAbstract},
 };
 
-// impl From<sqlx::Error> for UserRepositoryError {
-//     fn from(value: sqlx::Error) -> Self {
-//         match value {
-//             sqlx::Error::Configuration(error) => todo!(),
-//             sqlx::Error::InvalidArgument(_) => todo!(),
-//             sqlx::Error::Database(database_error) => todo!(),
-//             sqlx::Error::Io(error) => todo!(),
-//             sqlx::Error::Tls(error) => todo!(),
-//             sqlx::Error::Protocol(_) => todo!(),
-//             sqlx::Error::RowNotFound => todo!(),
-//             sqlx::Error::TypeNotFound { type_name } => todo!(),
-//             sqlx::Error::ColumnIndexOutOfBounds { index, len } => todo!(),
-//             sqlx::Error::ColumnNotFound(_) => todo!(),
-//             sqlx::Error::ColumnDecode { index, source } => todo!(),
-//             sqlx::Error::Encode(error) => todo!(),
-//             sqlx::Error::Decode(error) => todo!(),
-//             sqlx::Error::AnyDriverError(error) => todo!(),
-//             sqlx::Error::PoolTimedOut => todo!(),
-//             sqlx::Error::PoolClosed => todo!(),
-//             sqlx::Error::WorkerCrashed => todo!(),
-//             sqlx::Error::Migrate(migrate_error) => todo!(),
-//             sqlx::Error::InvalidSavePointStatement => todo!(),
-//             sqlx::Error::BeginFailed => todo!(),
-//             _ => todo!(),
-//         }
-//     }
-// }
+impl From<sqlx::Error> for UserRepositoryError {
+    fn from(value: sqlx::Error) -> Self {
+        match value {
+            sqlx::Error::Database(e) => {
+                if e.is_unique_violation() {
+                    return Self::AlreadyExist(e.to_string());
+                }
+                Self::Database("DB error".to_owned())
+            }
+            _ => Self::Database("DB error".to_owned()),
+        }
+    }
+}
 
 pub struct UserRepository {
     pool: PgPool,
@@ -52,8 +38,7 @@ impl UserRepositoryAbstract for UserRepository {
             .bind(&user.username)
             .bind(&user.password)
             .execute(&self.pool)
-            .await
-            .map_err(|e| UserRepositoryError::Database(e.to_string()))?;
+            .await?;
 
         Ok(())
     }

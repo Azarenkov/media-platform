@@ -7,7 +7,7 @@ use media_platform::{config::Config, run};
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
 
-    let config = Config::new();
+    let config = Config::default();
 
     run(&config).await?;
     Ok(())
