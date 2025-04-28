@@ -1,0 +1,11 @@
+[package]
+name = "media-platform"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+thiserror = "2.0.12"
+sqlx = { version = "0.8", features = ["runtime-tokio", "postgres"] }
+serde = "1.0.219"
+actix-web = "4.10.2"
+dotenv = "0.15.0"
