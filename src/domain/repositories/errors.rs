@@ -5,6 +5,9 @@ pub enum UserRepositoryError {
     #[error("User already exist. Error: `{0}`")]
     AlreadyExist(String),
 
+    #[error("User not found")]
+    NotFound,
+
     #[error("Database error: {0}")]
     Database(String),
 }

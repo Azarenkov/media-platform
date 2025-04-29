@@ -18,8 +18,9 @@ impl ApiError {
 impl ResponseError for UserServiceError {
     fn status_code(&self) -> actix_web::http::StatusCode {
         match self {
-            UserServiceError::EmailAlreadyRegistered => StatusCode::CONFLICT,
             UserServiceError::Internal => StatusCode::INTERNAL_SERVER_ERROR,
+            UserServiceError::NotFound => StatusCode::NOT_FOUND,
+            UserServiceError::Default => StatusCode::BAD_GATEWAY,
         }
     }
 

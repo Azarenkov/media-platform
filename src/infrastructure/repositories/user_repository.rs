@@ -14,6 +14,7 @@ impl From<sqlx::Error> for UserRepositoryError {
                 }
                 Self::Database(e.to_string())
             }
+            sqlx::Error::RowNotFound => Self::NotFound,
             e => Self::Database(e.to_string()),
         }
     }
@@ -41,5 +42,14 @@ impl UserRepositoryAbstract for UserRepository {
             .await?;
 
         Ok(())
+    }
+
+    async fn find_by_email(&self, email: &str) -> Result<User, UserRepositoryError> {
+        let query = "SELECT * FROM users WHERE email = $1";
+        let user: User = sqlx::query_as(query)
+            .bind(email)
+            .fetch_one(&self.pool)
+            .await?;
+        Ok(user)
     }
 }

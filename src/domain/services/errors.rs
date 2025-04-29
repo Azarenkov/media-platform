@@ -4,18 +4,28 @@ use crate::domain::repositories::errors::UserRepositoryError;
 
 #[derive(Debug, Error)]
 pub enum UserServiceError {
-    #[error("Email already registered")]
-    EmailAlreadyRegistered,
+    #[error("User not found")]
+    NotFound,
 
     #[error("Internal error")]
     Internal,
+
+    #[error("Default error")]
+    Default,
 }
 
 impl From<UserRepositoryError> for UserServiceError {
     fn from(value: UserRepositoryError) -> Self {
         match value {
-            UserRepositoryError::AlreadyExist(_) => Self::EmailAlreadyRegistered,
-            UserRepositoryError::Database(_) => Self::Internal,
+            UserRepositoryError::Database(e) => {
+                eprintln!("{}", e);
+                Self::Internal
+            }
+            UserRepositoryError::NotFound => Self::NotFound,
+            UserRepositoryError::AlreadyExist(e) => {
+                eprintln!("{}", e);
+                Self::Default
+            }
         }
     }
 }
