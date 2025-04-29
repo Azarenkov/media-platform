@@ -4,16 +4,16 @@ use crate::domain::{
     entities::user::User, repositories::user_repository_abstract::UserRepositoryAbstract,
 };
 
-use super::errors::UserServiceError;
+use super::errors::AuthServiceError;
 
-pub struct UserService<UserRepo>
+pub struct AuthService<UserRepo>
 where
     UserRepo: UserRepositoryAbstract,
 {
     user_repository: Arc<UserRepo>,
 }
 
-impl<UserRepo> UserService<UserRepo>
+impl<UserRepo> AuthService<UserRepo>
 where
     UserRepo: UserRepositoryAbstract,
 {
@@ -21,8 +21,8 @@ where
         Self { user_repository }
     }
 
-    pub async fn get_by_email(&self, email: &str) -> Result<User, UserServiceError> {
-        let user = self.user_repository.find_by_email(email).await?;
-        Ok(user)
+    pub async fn register_user(&self, user: &User) -> Result<(), AuthServiceError> {
+        self.user_repository.save(user).await?;
+        Ok(())
     }
 }
