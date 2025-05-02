@@ -21,8 +21,8 @@ where
         Self { user_repository }
     }
 
-    pub async fn get_by_email(&self, email: &str) -> Result<User, UserServiceError> {
-        let user = self.user_repository.find_by_email(email).await?;
-        Ok(user)
-    }
+    // pub async fn get_by_email(&self, email: &str) -> Result<User, UserServiceError> {
+    //     let user = self.user_repository.find_by_email(email).await?;
+    //     Ok(user)
+    // }
 }

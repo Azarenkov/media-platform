@@ -1,9 +1,7 @@
 -- Add up migration script here
 create table users (
-    id SERIAL PRIMARY KEY,
-    email varchar not null,
-    username varchar not null,
-    password varchar not null
+    id uuid primary key default gen_random_uuid (),
+    email text unique not null,
+    username text not null,
+    password text not null
 );
-
-create unique index user_email_idx on users (email);

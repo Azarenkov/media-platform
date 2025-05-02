@@ -4,5 +4,6 @@ use super::errors::UserRepositoryError;
 
 pub trait UserRepositoryAbstract {
     async fn save(&self, user: &User) -> Result<(), UserRepositoryError>;
-    async fn find_by_email(&self, email: &str) -> Result<User, UserRepositoryError>;
+    async fn find_email_and_password(&self, user: &User) -> Result<(), UserRepositoryError>;
+    // async fn validate_email_and_password(&self, user: &User) -> Result<(), UserRepositoryError>;
 }

@@ -1,3 +1,4 @@
 pub mod app_setup;
-pub mod db_connection;
+pub mod db;
+pub mod hasher;
 pub mod repositories;

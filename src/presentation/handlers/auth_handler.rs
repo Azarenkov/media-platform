@@ -1,4 +1,4 @@
-use actix_web::{HttpResponse, Responder, post, web};
+use actix_web::{HttpResponse, Responder, get, post, web};
 
 use crate::{
     domain::{entities::user::User, services::errors::AuthServiceError},
@@ -11,9 +11,17 @@ pub fn auth_routes(cfg: &mut web::ServiceConfig) {
 
 #[post("/register")]
 async fn register_user(
-    user: web::Json<User>,
+    mut user: web::Json<User>,
     app_state: web::Data<AppState>,
 ) -> Result<impl Responder, AuthServiceError> {
-    app_state.auth_service.register_user(&user).await?;
+    app_state.auth_service.register_user(&mut user).await?;
     Ok(HttpResponse::Created().json("User registered successfully"))
 }
+
+// #[get("/auth")]
+// async fn auth(
+//     user: web::Json<User>,
+//     app_state: web::Data<AppState>,
+// ) -> Result<impl Responder, AuthServiceError> {
+//     // app_state.auth_service
+// }

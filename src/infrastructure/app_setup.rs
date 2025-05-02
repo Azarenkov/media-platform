@@ -11,7 +11,10 @@ use crate::{
     },
 };
 
-use super::{db_connection::db_connect, repositories::user_repository::UserRepository};
+use super::{
+    db::db_connection::db_connect, hasher::ArgonHasher,
+    repositories::user_repository::UserRepository,
+};
 
 pub struct AppDependencies {
     pub app_state: web::Data<AppState>,
@@ -20,9 +23,10 @@ pub struct AppDependencies {
 impl AppDependencies {
     pub async fn init(config: &Config) -> Self {
         let pool = db_connect(&config.db_url).await;
+        let hasher = ArgonHasher;
         let user_repo = Arc::new(UserRepository::new(pool));
         let user_service = UserService::new(Arc::clone(&user_repo));
-        let auth_service = AuthService::new(Arc::clone(&user_repo));
+        let auth_service = AuthService::new(Arc::clone(&user_repo), hasher);
 
         let app_state = web::Data::new(AppState::new(user_service, auth_service));
 

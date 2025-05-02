@@ -44,12 +44,16 @@ impl UserRepositoryAbstract for UserRepository {
         Ok(())
     }
 
-    async fn find_by_email(&self, email: &str) -> Result<User, UserRepositoryError> {
-        let query = "SELECT * FROM users WHERE email = $1";
-        let user: User = sqlx::query_as(query)
-            .bind(email)
-            .fetch_one(&self.pool)
-            .await?;
-        Ok(user)
+    async fn find_email_and_password(&self, user: &User) -> Result<(), UserRepositoryError> {
+        todo!()
     }
+
+    // async fn find_by_email(&self, email: &str) -> Result<User, UserRepositoryError> {
+    //     let query = "SELECT * FROM users WHERE email = $1";
+    //     let user: User = sqlx::query_as(query)
+    //         .bind(email)
+    //         .fetch_one(&self.pool)
+    //         .await?;
+    //     Ok(user)
+    // }
 }
