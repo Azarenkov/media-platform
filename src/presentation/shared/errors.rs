@@ -20,7 +20,7 @@ impl ResponseError for UserServiceError {
     fn status_code(&self) -> actix_web::http::StatusCode {
         match self {
             UserServiceError::Internal => StatusCode::INTERNAL_SERVER_ERROR,
-            UserServiceError::NotFound => StatusCode::NOT_FOUND,
+            UserServiceError::NotFound(_) => StatusCode::NOT_FOUND,
             UserServiceError::Default => StatusCode::BAD_GATEWAY,
         }
     }
@@ -34,10 +34,9 @@ impl ResponseError for UserServiceError {
 impl ResponseError for AuthServiceError {
     fn status_code(&self) -> StatusCode {
         match self {
-            AuthServiceError::NotFound => StatusCode::NOT_FOUND,
-            AuthServiceError::AlreadyRegistered => StatusCode::BAD_REQUEST,
+            AuthServiceError::InvalidCredentials => StatusCode::NOT_FOUND,
+            AuthServiceError::AlreadyRegistered(_) => StatusCode::BAD_REQUEST,
             AuthServiceError::Internal => StatusCode::INTERNAL_SERVER_ERROR,
-            AuthServiceError::Default => StatusCode::BAD_GATEWAY,
         }
     }
     fn error_response(&self) -> HttpResponse<actix_web::body::BoxBody> {

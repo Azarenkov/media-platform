@@ -7,16 +7,7 @@ use crate::domain::{
 
 impl From<sqlx::Error> for UserRepositoryError {
     fn from(value: sqlx::Error) -> Self {
-        match value {
-            sqlx::Error::Database(e) => {
-                if e.is_unique_violation() {
-                    return Self::AlreadyExist(e.to_string());
-                }
-                Self::Database(e.to_string())
-            }
-            sqlx::Error::RowNotFound => Self::NotFound,
-            e => Self::Database(e.to_string()),
-        }
+        Self::Database(value.to_string())
     }
 }
 
@@ -34,14 +25,26 @@ impl UserRepositoryAbstract for UserRepository {
     async fn save(&self, user: &User) -> Result<(), UserRepositoryError> {
         let query = "INSERT INTO users (email, username, password) VALUES ($1, $2, $3)";
 
-        sqlx::query(query)
+        let result = sqlx::query(query)
             .bind(&user.email)
             .bind(&user.username)
             .bind(&user.password)
             .execute(&self.pool)
-            .await?;
+            .await;
 
-        Ok(())
+        match result {
+            Ok(_) => Ok(()),
+            Err(err) => match err {
+                sqlx::Error::Database(e) => {
+                    if e.is_unique_violation() {
+                        return Err(UserRepositoryError::AlreadyExist(user.email.to_owned()));
+                    }
+                    Err(UserRepositoryError::Database(e.to_string()))
+                }
+
+                _ => Err(err.into()),
+            },
+        }
     }
 
     async fn find_id_by_email(&self, email: &str) -> Result<u128, UserRepositoryError> {
@@ -51,7 +54,7 @@ impl UserRepositoryAbstract for UserRepository {
 
         match result {
             Some(id) => Ok(id.as_u128()),
-            None => Err(UserRepositoryError::NotFound),
+            None => Err(UserRepositoryError::NotFound(email.to_owned())),
         }
     }
 
@@ -62,7 +65,7 @@ impl UserRepositoryAbstract for UserRepository {
 
         match result {
             Some(password) => Ok(password),
-            None => Err(UserRepositoryError::NotFound),
+            None => Err(UserRepositoryError::NotFound(email.to_owned())),
         }
     }
 }

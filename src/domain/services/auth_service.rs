@@ -50,7 +50,7 @@ where
             .await
             .map_err(|_| AuthServiceError::Internal)?
         {
-            return Err(AuthServiceError::NotFound);
+            return Err(AuthServiceError::InvalidCredentials);
         }
 
         Ok(id)
