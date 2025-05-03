@@ -3,18 +3,24 @@ use std::future::{Ready, ready};
 use actix_web::error::ErrorUnauthorized;
 use actix_web::{Error as ActixWebError, web};
 use actix_web::{
-    FromRequest, HttpMessage,
-    http::{self, header::HeaderValue},
+    FromRequest,
+    http::{self},
 };
-use jsonwebtoken::{DecodingKey, Validation, decode};
+use anyhow::Context;
+use chrono::{Duration, Utc};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Claims {
     pub id: usize,
-    pub email: String,
-    pub username: String,
     pub exp: usize,
+}
+
+impl Claims {
+    fn new(id: usize, exp: usize) -> Self {
+        Self { id, exp }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -49,4 +55,15 @@ impl FromRequest for AuthToken {
             Err(_) => ready(Err(ErrorUnauthorized("Unauthorized"))),
         }
     }
+}
+
+pub async fn encode_token(id: usize, secret: &str) -> anyhow::Result<String> {
+    let exp = (Utc::now() + Duration::days(365)).timestamp() as usize;
+    let claims = Claims::new(id, exp);
+    let token = encode(
+        &Header::default(),
+        &claims,
+        &EncodingKey::from_secret(secret.as_bytes()),
+    );
+    token.context("Errod encode token()")
 }
