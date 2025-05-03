@@ -1,10 +1,6 @@
 use std::sync::Arc;
 
-use crate::domain::{
-    entities::user::User, repositories::user_repository_abstract::UserRepositoryAbstract,
-};
-
-use super::errors::UserServiceError;
+use crate::domain::repositories::user_repository_abstract::UserRepositoryAbstract;
 
 pub struct UserService<UserRepo>
 where

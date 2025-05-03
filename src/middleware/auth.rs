@@ -1,6 +1,6 @@
 use std::future::{Ready, ready};
 
-use actix_web::error::ErrorUnauthorized;
+use actix_web::error::{ErrorInternalServerError, ErrorUnauthorized};
 use actix_web::{Error as ActixWebError, web};
 use actix_web::{
     FromRequest,
@@ -10,6 +10,8 @@ use anyhow::Context;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
+
+use crate::presentation::shared::app_state::AppState;
 
 #[derive(Serialize, Deserialize)]
 pub struct Claims {
@@ -23,7 +25,7 @@ impl Claims {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct AuthToken {
     pub id: usize,
 }
@@ -34,17 +36,28 @@ impl FromRequest for AuthToken {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn from_request(req: &actix_web::HttpRequest, _: &mut actix_web::dev::Payload) -> Self::Future {
-        let auth_header = req.headers().get(http::header::AUTHORIZATION);
-        let auth_token = auth_header.unwrap().to_str().unwrap_or("");
+        let auth_header = match req.headers().get(http::header::AUTHORIZATION) {
+            Some(header) => header,
+            None => return ready(Err(ErrorUnauthorized("No authorization header"))),
+        };
+
+        let auth_token = auth_header
+            .to_str()
+            .unwrap_or("")
+            .trim_start_matches("Bearer ")
+            .trim();
         if auth_token.is_empty() {
             return ready(Err(ErrorUnauthorized("Invalid auth token")));
         }
 
-        let secret = req.app_data::<web::Data<String>>().unwrap();
+        let secret = match req.app_data::<web::Data<AppState>>() {
+            Some(app_state) => &app_state.secret,
+            None => return ready(Err(ErrorInternalServerError("App state not found"))),
+        };
 
         let decode = decode::<Claims>(
-            &auth_token,
-            &DecodingKey::from_secret(secret.as_str().as_ref()),
+            auth_token,
+            &DecodingKey::from_secret(secret.as_bytes()),
             &Validation::new(jsonwebtoken::Algorithm::HS256),
         );
 

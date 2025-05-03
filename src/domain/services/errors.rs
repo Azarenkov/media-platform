@@ -48,7 +48,7 @@ impl From<UserRepositoryError> for AuthServiceError {
     fn from(value: UserRepositoryError) -> Self {
         match value {
             UserRepositoryError::AlreadyExist(email) => {
-                eprintln!("{}", email.to_string());
+                eprintln!("{}", email);
                 Self::AlreadyRegistered(email)
             }
             UserRepositoryError::NotFound(_email) => Self::InvalidCredentials,

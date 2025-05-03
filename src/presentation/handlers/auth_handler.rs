@@ -2,7 +2,7 @@ use actix_web::{HttpResponse, Responder, get, post, web};
 
 use crate::{
     domain::{entities::user::User, services::errors::AuthServiceError},
-    middleware::auth::encode_token,
+    middleware::auth::{AuthToken, encode_token},
     presentation::shared::{app_state::AppState, dto::user_dto::UserAuthRequest},
 };
 
@@ -10,7 +10,8 @@ pub fn auth_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api/v1/auth")
             .service(register_user)
-            .service(auth),
+            .service(auth)
+            .service(protected),
     );
 }
 
@@ -37,7 +38,15 @@ async fn auth(
         .await
         .map_err(|_| AuthServiceError::Internal)?;
 
+    let message = format!("User auth successfully with email: {}", user.email);
+
     Ok(HttpResponse::Accepted()
         .append_header(("Authorization", format!("Bearer {}", token)))
-        .json("User auth successfully"))
+        .json(message))
+}
+
+#[get("/protected")]
+async fn protected(auth_token: AuthToken) -> HttpResponse {
+    println!("{:?}", auth_token);
+    HttpResponse::Ok().json("Protected")
 }
