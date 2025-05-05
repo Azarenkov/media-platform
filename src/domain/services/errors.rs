@@ -1,4 +1,5 @@
 use thiserror::Error;
+use validator::ValidationErrors;
 
 use crate::domain::repositories::errors::UserRepositoryError;
 
@@ -40,6 +41,9 @@ pub enum AuthServiceError {
     #[error("User already exist with email: `{0}`")]
     AlreadyRegistered(String),
 
+    #[error("Validation error: `{0}`")]
+    Validation(String),
+
     #[error("Internal error")]
     Internal,
 }
@@ -57,5 +61,11 @@ impl From<UserRepositoryError> for AuthServiceError {
                 Self::Internal
             }
         }
+    }
+}
+
+impl From<ValidationErrors> for AuthServiceError {
+    fn from(value: ValidationErrors) -> Self {
+        Self::Validation(value.to_string())
     }
 }
