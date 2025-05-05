@@ -37,6 +37,7 @@ impl ResponseError for AuthServiceError {
             AuthServiceError::InvalidCredentials => StatusCode::NOT_FOUND,
             AuthServiceError::AlreadyRegistered(_) => StatusCode::BAD_REQUEST,
             AuthServiceError::Internal => StatusCode::INTERNAL_SERVER_ERROR,
+            AuthServiceError::Validation(_) => StatusCode::BAD_REQUEST,
         }
     }
     fn error_response(&self) -> HttpResponse<actix_web::body::BoxBody> {

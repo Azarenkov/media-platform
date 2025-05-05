@@ -1,4 +1,5 @@
 use actix_web::{HttpResponse, Responder, get, post, web};
+use validator::Validate;
 
 use crate::{
     domain::{entities::user::User, services::errors::AuthServiceError},
@@ -20,6 +21,7 @@ async fn register_user(
     mut user: web::Json<User>,
     app_state: web::Data<AppState>,
 ) -> Result<impl Responder, AuthServiceError> {
+    user.validate()?;
     app_state.auth_service.register_user(&mut user).await?;
     Ok(HttpResponse::Created().json("User registered successfully"))
 }
