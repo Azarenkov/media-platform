@@ -1,5 +1,5 @@
 FROM messense/rust-musl-cross:x86_64-musl as chef
-ENV SQLX_OFFLINE=true
+# ENV SQLX_OFFLINE=true
 RUN cargo install cargo-chef
 RUN cargo install sqlx-cli --no-default-features --features native-tls,postgres
 WORKDIR /media-platform
