@@ -4,8 +4,11 @@ use actix_web::{App, HttpServer, web};
 
 use crate::{
     config::Config,
-    domain::services::{auth_service::AuthService, user_service::UserService},
-    presentation::{handlers::auth_handler::auth_routes, shared::app_state::AppState},
+    domain::services::{account_service::AccountService, auth_service::AuthService},
+    presentation::{
+        handlers::{account_handler::account_routes, auth_handler::auth_routes},
+        shared::app_state::AppState,
+    },
 };
 
 use super::{
@@ -22,11 +25,11 @@ impl AppDependencies {
         let pool = db_connect(&config.db_url).await;
         let hasher = ArgonHasher;
         let user_repo = Arc::new(UserRepository::new(pool));
-        let user_service = UserService::new(Arc::clone(&user_repo));
+        let account_service = AccountService::new(Arc::clone(&user_repo));
         let auth_service = AuthService::new(Arc::clone(&user_repo), hasher);
 
         let app_state = web::Data::new(AppState::new(
-            user_service,
+            account_service,
             auth_service,
             config.secret.to_owned(),
         ));
@@ -44,6 +47,7 @@ pub async fn server(app_state: web::Data<AppState>, port: &str) -> Result<(), Bo
             .app_data(app_state.clone())
             // .configure(user_routes)
             .configure(auth_routes)
+            .configure(account_routes)
     })
     .bind(address)?
     .run()

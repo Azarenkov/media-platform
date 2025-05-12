@@ -1,3 +1,3 @@
+pub mod account_service;
 pub mod auth_service;
 pub mod errors;
-pub mod user_service;

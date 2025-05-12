@@ -36,7 +36,7 @@ async fn auth(
         .auth_user(&user.email, &user.password)
         .await?;
 
-    let token = encode_token(id as usize, &app_state.secret)
+    let token = encode_token(id, &app_state.secret)
         .await
         .map_err(|_| AuthServiceError::Internal)?;
 

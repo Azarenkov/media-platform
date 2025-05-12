@@ -1,4 +1,4 @@
-use sqlx::PgPool;
+use sqlx::{PgPool, types::Uuid};
 
 use crate::domain::{
     entities::user::User,
@@ -67,5 +67,23 @@ impl UserRepositoryAbstract for UserRepository {
             Some(password) => Ok(password),
             None => Err(UserRepositoryError::NotFound(email.to_owned())),
         }
+    }
+
+    async fn delete_user_by_id(&self, id: u128) -> Result<(), UserRepositoryError> {
+        println!("{}", id);
+        let result = sqlx::query("DELETE FROM users WHERE id = $1")
+            .bind(Uuid::from_u128(id))
+            .execute(&self.pool)
+            .await;
+
+        match result {
+            Ok(value) => {
+                if value.rows_affected() == 0 {
+                    return Err(UserRepositoryError::NotFound(id.to_string()));
+                }
+            }
+            Err(e) => return Err(UserRepositoryError::Database(e.to_string())),
+        }
+        Ok(())
     }
 }

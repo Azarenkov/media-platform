@@ -6,4 +6,5 @@ pub trait UserRepositoryAbstract {
     async fn save(&self, user: &User) -> Result<(), UserRepositoryError>;
     async fn find_id_by_email(&self, email: &str) -> Result<u128, UserRepositoryError>;
     async fn find_password_by_email(&self, email: &str) -> Result<String, UserRepositoryError>;
+    async fn delete_user_by_id(&self, id: u128) -> Result<(), UserRepositoryError>;
 }

@@ -5,7 +5,7 @@ use crate::domain::repositories::errors::UserRepositoryError;
 
 // Implementation UserService errors from other layers
 #[derive(Debug, Error)]
-pub enum UserServiceError {
+pub enum AccountServiceError {
     #[error("User not found with email: `{0}`")]
     NotFound(String),
 
@@ -16,7 +16,7 @@ pub enum UserServiceError {
     Default,
 }
 
-impl From<UserRepositoryError> for UserServiceError {
+impl From<UserRepositoryError> for AccountServiceError {
     fn from(value: UserRepositoryError) -> Self {
         match value {
             UserRepositoryError::Database(e) => {

@@ -15,19 +15,19 @@ use crate::presentation::shared::app_state::AppState;
 
 #[derive(Serialize, Deserialize)]
 pub struct Claims {
-    pub id: usize,
+    pub id: u128,
     pub exp: usize,
 }
 
 impl Claims {
-    fn new(id: usize, exp: usize) -> Self {
+    fn new(id: u128, exp: usize) -> Self {
         Self { id, exp }
     }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AuthToken {
-    pub id: usize,
+    pub id: u128,
 }
 
 impl FromRequest for AuthToken {
@@ -70,7 +70,7 @@ impl FromRequest for AuthToken {
     }
 }
 
-pub async fn encode_token(id: usize, secret: &str) -> anyhow::Result<String> {
+pub async fn encode_token(id: u128, secret: &str) -> anyhow::Result<String> {
     let exp = (Utc::now() + Duration::days(365)).timestamp() as usize;
     let claims = Claims::new(id, exp);
     let token = encode(

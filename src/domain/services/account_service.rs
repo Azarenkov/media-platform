@@ -2,19 +2,26 @@ use std::sync::Arc;
 
 use crate::domain::repositories::user_repository_abstract::UserRepositoryAbstract;
 
-pub struct UserService<UserRepo>
+use super::errors::AccountServiceError;
+
+pub struct AccountService<UserRepo>
 where
     UserRepo: UserRepositoryAbstract,
 {
     user_repository: Arc<UserRepo>,
 }
 
-impl<UserRepo> UserService<UserRepo>
+impl<UserRepo> AccountService<UserRepo>
 where
     UserRepo: UserRepositoryAbstract,
 {
     pub fn new(user_repository: Arc<UserRepo>) -> Self {
         Self { user_repository }
+    }
+
+    pub async fn delete_account(&self, id: u128) -> Result<(), AccountServiceError> {
+        self.user_repository.delete_user_by_id(id).await?;
+        Ok(())
     }
 
     // pub async fn get_by_email(&self, email: &str) -> Result<User, UserServiceError> {

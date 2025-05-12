@@ -1,7 +1,7 @@
 use actix_web::{HttpResponse, ResponseError, http::StatusCode};
 use serde::Serialize;
 
-use crate::domain::services::errors::{AuthServiceError, UserServiceError};
+use crate::domain::services::errors::{AuthServiceError, AccountServiceError};
 
 #[derive(Serialize)]
 struct ApiError {
@@ -16,12 +16,12 @@ impl ApiError {
 }
 
 // Transforming ResponseError from other layers
-impl ResponseError for UserServiceError {
+impl ResponseError for AccountServiceError {
     fn status_code(&self) -> actix_web::http::StatusCode {
         match self {
-            UserServiceError::Internal => StatusCode::INTERNAL_SERVER_ERROR,
-            UserServiceError::NotFound(_) => StatusCode::NOT_FOUND,
-            UserServiceError::Default => StatusCode::BAD_GATEWAY,
+            AccountServiceError::Internal => StatusCode::INTERNAL_SERVER_ERROR,
+            AccountServiceError::NotFound(_) => StatusCode::NOT_FOUND,
+            AccountServiceError::Default => StatusCode::BAD_GATEWAY,
         }
     }
 
